@@ -1,0 +1,1679 @@
+{
+  "meta": {
+    "name": "Bike Assessment Diagnostic Knowledge Base",
+    "version": "0.2.0",
+    "based_on": "Workshop 'M Check' service & repair assessment (paper form)",
+    "notes": [
+      "Service tiers, prices and labour times are shop-configurable. Values left null are to be filled per shop.",
+      "remote_confidence says how far the check can be assessed without a technician: photo, self_test, conversation, or tech_only.",
+      "Any safety_critical fail should tell the user to stop riding until checked.",
+      "stop_work = no further work can be carried out on the bike (eBike eligibility checks).",
+      "extra_questions options: 'supports' raises the listed causes, 'weakens' lowers them.",
+      "non_check_causes: likely causes that are not an M-check line item, with their repairs."
+    ]
+  },
+  "answer_codes": {
+    "Y": "Check does not require rectification",
+    "N": "Check requires rectification",
+    "*": "Safety critical check",
+    "**": "No further work can be carried out"
+  },
+  "service_tiers": {
+    "_comment": "Tier each check belongs to, as printed next to it on the form. '+' means included in that tier and above. Confirm scope with shop.",
+    "order": [
+      "bronze",
+      "silver",
+      "gold",
+      "platinum"
+    ],
+    "bronze": {
+      "label": "Bronze",
+      "price": null,
+      "parts_included": false,
+      "labour_for_repairs_included": false,
+      "notes": "Replacement parts & labour not included in price"
+    },
+    "silver": {
+      "label": "Silver",
+      "price": null,
+      "parts_included": false,
+      "labour_for_repairs_included": false,
+      "notes": "Replacement parts & labour not included in price"
+    },
+    "gold": {
+      "label": "Gold",
+      "price": null,
+      "parts_included": false,
+      "labour_for_repairs_included": "partial",
+      "notes": "Replacement parts not included, but 2 essential repairs are"
+    },
+    "platinum": {
+      "label": "Platinum",
+      "price": null,
+      "parts_included": false,
+      "labour_for_repairs_included": true,
+      "notes": "Replacement parts not included in price but fitted for free"
+    },
+    "repair": {
+      "label": "Separate repair",
+      "price": null,
+      "notes": "Not covered by a service tier; quoted as an individual repair"
+    },
+    "recycle": {
+      "label": "Not repairable",
+      "price": null,
+      "notes": "Bike likely unsafe to repair; advise replacement/recycling"
+    }
+  },
+  "standalone_services": [
+    {
+      "id": "brake_bleed",
+      "label": "Brake bleed",
+      "positions": [
+        "front",
+        "rear"
+      ],
+      "price": null
+    },
+    {
+      "id": "brake_service_inner",
+      "label": "Brake service - inner cables",
+      "price": null
+    },
+    {
+      "id": "brake_service_inner_outer",
+      "label": "Brake service - inner & outer cables",
+      "price": null
+    },
+    {
+      "id": "gear_service_inner",
+      "label": "Gear service - inner cables",
+      "price": null
+    },
+    {
+      "id": "gear_service_inner_outer",
+      "label": "Gear service - inner & outer cables",
+      "price": null
+    },
+    {
+      "id": "cycle_care",
+      "label": "Cycle Care plan",
+      "price": null
+    },
+    {
+      "id": "slime",
+      "label": "Slime puncture sealant",
+      "positions": [
+        "front",
+        "rear"
+      ],
+      "price": null
+    }
+  ],
+  "sections": [
+    {
+      "id": "ebike",
+      "label": "E-Bikes",
+      "applies_if": "bike.is_ebike == true",
+      "run_first": true,
+      "checks": [
+        {
+          "id": "ebike_brand_approved",
+          "mcheck_text": "Is the eBike system a recognised brand, green listed?",
+          "fault_label": "eBike system not on the approved list",
+          "tier": null,
+          "safety_critical": false,
+          "stop_work": true,
+          "customer_question": "What make and model is your eBike, and what motor system does it use (e.g. Bosch, Shimano Steps)?",
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo of the motor unit or its label, and the brand name on the frame."
+          },
+          "remote_confidence": "conversation",
+          "on_fail": {
+            "outcome": "cannot_service",
+            "message": "We can't work on this eBike system. We'll suggest specialist eBike workshops instead."
+          },
+          "config": {
+            "approved_brand_list": []
+          }
+        },
+        {
+          "id": "ebike_eapc_compliant",
+          "mcheck_text": "Does the eBike meet all criteria on EAPC guidelines?",
+          "fault_label": "eBike doesn't meet EAPC rules",
+          "tier": null,
+          "safety_critical": false,
+          "stop_work": true,
+          "customer_question": "Does the motor only help while you're pedalling, and does the assistance stop at around 15.5 mph? Is there a throttle?",
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo of the motor rating label showing power (e.g. 250W)."
+          },
+          "remote_confidence": "conversation",
+          "on_fail": {
+            "outcome": "cannot_service",
+            "message": "This bike doesn't meet UK EAPC rules, so it can't be serviced here."
+          }
+        },
+        {
+          "id": "ebike_battery_undamaged",
+          "mcheck_text": "Following a visual check, does the eBike battery appear free from any damage?",
+          "fault_label": "Damaged eBike battery",
+          "tier": null,
+          "safety_critical": true,
+          "stop_work": true,
+          "customer_question": "Has the battery been dropped, got very wet, swollen, or does it have any cracks or dents?",
+          "self_test": "Look all round the battery case for cracks, bulging or scorch marks. Don't charge it if you see any.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photos of all sides of the battery, in good light."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "outcome": "cannot_service",
+            "message": "A damaged battery is a fire risk. Stop charging and using it, and contact the manufacturer or a specialist."
+          }
+        },
+        {
+          "id": "ebike_no_modifications",
+          "mcheck_text": "Is the eBike free from any electrical modifications (including conversion kit) or tampering?",
+          "fault_label": "Modified or converted eBike",
+          "tier": null,
+          "safety_critical": false,
+          "stop_work": true,
+          "customer_question": "Was the bike built as an eBike from the factory, or has a motor or conversion kit been added? Has anything been changed to make it go faster?",
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo of the motor area and the wiring near the handlebars."
+          },
+          "remote_confidence": "conversation",
+          "on_fail": {
+            "outcome": "cannot_service",
+            "message": "Converted or modified eBikes can't be serviced here."
+          }
+        },
+        {
+          "id": "ebike_crank_sensor",
+          "mcheck_text": "Is the crank sensor free of any damage and clear of any dirt or grease?",
+          "fault_label": "Dirty or damaged crank sensor",
+          "tier": null,
+          "safety_critical": false,
+          "stop_work": false,
+          "customer_question": "Does the motor cut in and out, or feel delayed when you start pedalling?",
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Close-up of the area around the cranks/motor where the sensor sits."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "ebike_sensor_clean",
+              "ebike_sensor_replace"
+            ]
+          }
+        },
+        {
+          "id": "ebike_keys",
+          "mcheck_text": "Have the keys been handed over?",
+          "fault_label": "Battery key needed",
+          "tier": null,
+          "safety_critical": true,
+          "stop_work": false,
+          "customer_question": "Does your battery use a key? Please bring it with the bike.",
+          "self_test": null,
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "conversation",
+          "on_fail": {
+            "outcome": "booking_note",
+            "message": "Remember to bring the battery key to your appointment."
+          }
+        },
+        {
+          "id": "ebike_battery_charged",
+          "mcheck_text": "Is the battery charged?",
+          "fault_label": "Battery needs charging",
+          "tier": null,
+          "safety_critical": false,
+          "stop_work": false,
+          "customer_question": "Please make sure the battery is charged before you bring the bike in.",
+          "self_test": null,
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "conversation",
+          "on_fail": {
+            "outcome": "booking_note"
+          }
+        },
+        {
+          "id": "ebike_display",
+          "mcheck_text": "Is the display in working order? (no visible damage)",
+          "fault_label": "eBike display fault",
+          "tier": null,
+          "safety_critical": false,
+          "stop_work": false,
+          "customer_question": "Does the display switch on and show everything normally? Any cracks or error codes?",
+          "self_test": "Switch the bike on and note any error code shown.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo of the display switched on."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "ebike_display_diagnose"
+            ]
+          }
+        },
+        {
+          "id": "ebike_motor_engages",
+          "mcheck_text": "Does the motor engage when the pedals are rotated and the crank is turned?",
+          "fault_label": "Motor not assisting",
+          "tier": null,
+          "safety_critical": false,
+          "stop_work": false,
+          "customer_question": "When you pedal with assistance switched on, does the motor help you?",
+          "self_test": "With the bike on and in a low assist mode, lift the rear wheel and turn the pedals by hand. Does the motor kick in?",
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "ebike_motor_diagnose"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "wheels",
+      "label": "Front & Rear Wheel",
+      "positions": [
+        "front",
+        "rear"
+      ],
+      "checks": [
+        {
+          "id": "tyre_pressure",
+          "mcheck_text": "Are the tyres inflated to correct PSI?",
+          "fault_label": "Low tyre pressure or puncture",
+          "tier": "bronze",
+          "safety_critical": false,
+          "customer_question": "When did you last pump up the tyres? Do they feel soft when you press them with your thumb?",
+          "self_test": "Press the tyre hard with your thumb. It should barely give. Check the pressure range printed on the tyre sidewall.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Close-up of the tyre sidewall where the PSI range is printed."
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "tyre_inflate",
+              "inner_tube_replace"
+            ],
+            "diy_possible": true
+          }
+        },
+        {
+          "id": "brakes_stop_wheel",
+          "mcheck_text": "When spinning the wheel do the brakes stop them? (Non-hydraulic)",
+          "fault_label": "Brakes not stopping the wheel",
+          "tier": "bronze",
+          "safety_critical": true,
+          "applies_if": "brake_type in ['rim', 'mechanical_disc']",
+          "customer_question": "Do your brakes stop you quickly? Does the lever pull right back to the handlebar?",
+          "self_test": "Lift the wheel, spin it, and squeeze the brake. It should stop straight away, and the lever should stop well before touching the bar.",
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "brake_adjust",
+              "brake_pads_replace",
+              "brake_inner_cable_replace"
+            ],
+            "stop_riding": true
+          }
+        },
+        {
+          "id": "tyre_condition",
+          "mcheck_text": "Are the tyres free from damage and cracks?",
+          "fault_label": "Damaged or worn tyre",
+          "tier": "gold",
+          "safety_critical": false,
+          "customer_question": "Can you see any cracks, cuts, bulges or bald patches on the tyres?",
+          "self_test": "Turn the wheel slowly and look all the way round the tread and both sidewalls.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photos of the tread and sidewall; close-up of any cuts or cracks."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "tyre_replace"
+            ],
+            "diy_possible": true
+          }
+        },
+        {
+          "id": "wheel_true",
+          "mcheck_text": "Do the wheels run true?",
+          "fault_label": "Wheel out of true (buckled)",
+          "tier": "silver",
+          "safety_critical": false,
+          "customer_question": "Does the wheel wobble side to side, or rub on the brakes as it turns?",
+          "self_test": "Lift the wheel and spin it. Watch the gap between the rim and the brake pad (or a fixed point on the frame for disc brakes). Does the gap change?",
+          "photo_request": {
+            "needed": false
+          },
+          "video_request": {
+            "optional": true,
+            "guidance": "10-second clip of the spinning wheel, filmed from the front, looking along the rim."
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "wheel_true",
+              "spoke_replace",
+              "wheel_replace"
+            ]
+          }
+        },
+        {
+          "id": "brake_inner_cable",
+          "mcheck_text": "Are the inner brake cables in good condition with cable ends present? (Non-hydraulic)",
+          "fault_label": "Worn or frayed brake cable",
+          "tier": "silver",
+          "safety_critical": false,
+          "applies_if": "brake_type in ['rim', 'mechanical_disc']",
+          "customer_question": "Do the brakes feel stiff or gritty? Is the cable frayed anywhere?",
+          "self_test": "Look at the end of the cable past the brake clamp bolt. Is there a cap on the end? Any fraying?",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Close-up of the brake cable where it's clamped at the brake, including the cable end."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "brake_inner_cable_replace"
+            ],
+            "service_upsell": "brake_service_inner"
+          }
+        },
+        {
+          "id": "brake_outer_cable",
+          "mcheck_text": "Are the outer brake cables in good condition and free from damage? (Non-hydraulic)",
+          "fault_label": "Damaged brake cable housing",
+          "tier": "gold",
+          "safety_critical": false,
+          "applies_if": "brake_type in ['rim', 'mechanical_disc']",
+          "customer_question": "Are the black outer cable housings cracked, kinked or rusty at the ends?",
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photos of the outer cable along its length, especially the ends and any tight bends."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "brake_outer_cable_replace"
+            ],
+            "service_upsell": "brake_service_inner_outer"
+          }
+        },
+        {
+          "id": "brake_pads",
+          "mcheck_text": "Do the brake pads have enough braking material left?",
+          "fault_label": "Worn brake pads",
+          "tier": "gold",
+          "safety_critical": true,
+          "customer_question": "Do the brakes squeal or make a grinding, metal-on-metal noise? Have they got weaker recently?",
+          "self_test": "Rim brakes: look at the grooves on the pads; if they've worn away, the pads need replacing. Disc brakes: shine a torch into the caliper from above and look at the pad thickness.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Rim: close-up of the pad against the rim. Disc: photo looking down into the caliper with a torch."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "brake_pads_replace"
+            ],
+            "stop_riding_if": "grinding_noise",
+            "diy_possible": true
+          }
+        },
+        {
+          "id": "hubs_tight",
+          "mcheck_text": "Are the hubs tight?",
+          "fault_label": "Loose hub or wheel",
+          "tier": "platinum",
+          "safety_critical": true,
+          "customer_question": "Is there any knock or play in the wheel?",
+          "self_test": "Hold the top of the wheel and rock it side to side against the frame. Any clunk or movement?",
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "axle_secure",
+              "hub_adjust",
+              "hub_service"
+            ],
+            "stop_riding": true
+          }
+        },
+        {
+          "id": "spokes_rims",
+          "mcheck_text": "Are the spokes & rims on the wheels free from damage or wear?",
+          "fault_label": "Broken spoke or damaged rim",
+          "tier": "platinum",
+          "safety_critical": false,
+          "customer_question": "Are any spokes broken or loose? Is the rim dented?",
+          "self_test": "Squeeze pairs of spokes together all the way round. Any that feel much looser than the rest? On rim brakes, look for the wear indicator line or dip on the braking surface.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo of the whole wheel, plus close-ups of any dent or broken spoke."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "spoke_replace",
+              "wheel_true",
+              "wheel_replace"
+            ]
+          }
+        },
+        {
+          "id": "hydraulic_brake",
+          "mcheck_text": "If fitted, is the hydraulic brake effective and hose free from damage? (Advise replacing fluid every 12 months)",
+          "fault_label": "Hydraulic brake needs bleeding or repair",
+          "tier": "repair",
+          "safety_critical": true,
+          "applies_if": "brake_type == 'hydraulic_disc'",
+          "customer_question": "Does the brake lever feel spongy, or pull further than it used to? Any fluid leaks? When was the fluid last changed?",
+          "self_test": "Squeeze the lever hard. It should feel firm and stop well short of the bar. Look for oily marks on the hose, lever or caliper.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photos of the hose along its length and the caliper."
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "brake_bleed",
+              "hydraulic_hose_replace",
+              "brake_pads_replace"
+            ],
+            "stop_riding": true
+          },
+          "advice": "Replace brake fluid every 12 months."
+        }
+      ]
+    },
+    {
+      "id": "handlebar",
+      "label": "Handlebar",
+      "checks": [
+        {
+          "id": "cockpit_secure",
+          "mcheck_text": "Are the stem, handlebar clamp, brake lever & gear shifters secure?",
+          "fault_label": "Loose handlebars, stem or levers",
+          "tier": "bronze",
+          "safety_critical": true,
+          "customer_question": "Do the handlebars ever twist or move? Do the brake levers or shifters slip?",
+          "self_test": "Hold the front wheel between your knees and try to twist the handlebars. Then try to push each brake lever and shifter around the bar.",
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "cockpit_tighten"
+            ],
+            "stop_riding": true,
+            "diy_possible": true
+          }
+        },
+        {
+          "id": "grips_bar_tape",
+          "mcheck_text": "Are the grips/bar tape in good condition?",
+          "fault_label": "Worn grips or bar tape",
+          "tier": "platinum",
+          "safety_critical": false,
+          "customer_question": "Are the grips or bar tape worn, torn or slipping?",
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo of both grips or the bar tape."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "grips_replace",
+              "bar_tape_replace"
+            ],
+            "diy_possible": true
+          }
+        },
+        {
+          "id": "headset_tight",
+          "mcheck_text": "Is the headset tight?",
+          "fault_label": "Loose headset",
+          "tier": "platinum",
+          "safety_critical": true,
+          "customer_question": "Do you feel a knock through the handlebars when you brake or go over bumps?",
+          "self_test": "Squeeze the front brake and rock the bike forwards and backwards. Put your other hand where the fork meets the frame. Feel any clunk?",
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "headset_adjust",
+              "headset_replace"
+            ],
+            "stop_riding": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "frame_saddle",
+      "label": "Frame & Saddle",
+      "checks": [
+        {
+          "id": "seat_secure",
+          "mcheck_text": "Is the seat post and saddle secure?",
+          "fault_label": "Loose saddle or seat post",
+          "tier": "bronze",
+          "safety_critical": true,
+          "customer_question": "Does the saddle slip down, tilt, or twist while you ride?",
+          "self_test": "Try to twist the saddle side to side and tilt its nose up and down.",
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "seatpost_tighten",
+              "seat_clamp_replace"
+            ],
+            "diy_possible": true
+          }
+        },
+        {
+          "id": "frame_undamaged",
+          "mcheck_text": "Is the frame free from damage or cracks?",
+          "fault_label": "Possible frame damage",
+          "tier": "recycle",
+          "safety_critical": true,
+          "customer_question": "Has the bike been in a crash? Can you see any cracks, dents or bends in the frame?",
+          "self_test": "Clean and check around the joints: where the handlebars meet the frame, around the pedals, and where the rear wheel fits.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photos of the head tube area, bottom bracket area and rear dropouts, plus close-ups of any mark."
+          },
+          "remote_confidence": "tech_only",
+          "on_fail": {
+            "outcome": "not_repairable",
+            "stop_riding": true,
+            "message": "A cracked frame isn't safe to ride. Please have a technician confirm before riding again."
+          }
+        },
+        {
+          "id": "suspension",
+          "mcheck_text": "Does the front and rear suspension operate correctly? (Look for oil leakage)",
+          "fault_label": "Suspension needs servicing",
+          "tier": "repair",
+          "safety_critical": false,
+          "applies_if": "bike.has_suspension == true",
+          "customer_question": "Does the suspension feel sticky, bottom out, knock, or leak oil?",
+          "self_test": "Push down on the handlebars (and saddle for rear suspension) a few times. Does it move smoothly and return? Look for oil on the fork legs.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Close-up of the fork legs (stanchions) and seals."
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "suspension_service"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "id": "drivetrain",
+      "label": "Drivetrain",
+      "checks": [
+        {
+          "id": "gears_operate",
+          "mcheck_text": "Do the front & rear gears operate correctly?",
+          "fault_label": "Gears need adjusting",
+          "tier": "bronze",
+          "safety_critical": false,
+          "customer_question": "Do the gears change cleanly? Do they skip, slip, make noise, or refuse to go into some gears?",
+          "self_test": "Lift the rear wheel, turn the pedals and change through every gear. Note which ones are noisy or won't change.",
+          "photo_request": {
+            "needed": false
+          },
+          "video_request": {
+            "optional": true,
+            "guidance": "Clip of changing through the gears from behind the rear mech."
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "gear_index",
+              "gear_inner_cable_replace",
+              "hanger_align"
+            ]
+          }
+        },
+        {
+          "id": "gear_inner_cable",
+          "mcheck_text": "Are the inner gear cables in good condition with cable ends present?",
+          "fault_label": "Worn or frayed gear cable",
+          "tier": "silver",
+          "safety_critical": false,
+          "customer_question": "Does the shifting feel stiff? Is the gear cable frayed?",
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Close-up of the cable where it's clamped at the rear mech, including the cable end."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "gear_inner_cable_replace"
+            ],
+            "service_upsell": "gear_service_inner"
+          }
+        },
+        {
+          "id": "gear_outer_cable",
+          "mcheck_text": "Are the outer gear cables in good condition?",
+          "fault_label": "Damaged gear cable housing",
+          "tier": "gold",
+          "safety_critical": false,
+          "customer_question": "Are the outer gear cable housings cracked, kinked or rusty?",
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photos of the outer cables along their length, especially the ends."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "gear_outer_cable_replace"
+            ],
+            "service_upsell": "gear_service_inner_outer"
+          }
+        },
+        {
+          "id": "pedals",
+          "mcheck_text": "Are the pedals free from any wear, looseness or damage?",
+          "fault_label": "Loose or worn pedals",
+          "tier": "platinum",
+          "safety_critical": false,
+          "customer_question": "Do the pedals wobble, click, or feel rough when they turn?",
+          "self_test": "Grab each pedal and wiggle it on its axle, then spin it by hand.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo of each pedal."
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "pedals_tighten",
+              "pedals_replace"
+            ],
+            "diy_possible": true
+          }
+        },
+        {
+          "id": "bottom_bracket",
+          "mcheck_text": "Is the bottom bracket tight?",
+          "fault_label": "Loose bottom bracket or cranks",
+          "tier": "repair",
+          "safety_critical": true,
+          "customer_question": "Do you hear a creak or knock every pedal stroke? Do the cranks feel loose?",
+          "self_test": "Grab both crank arms and push and pull them sideways towards and away from the frame. Any clunk or movement?",
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "self_test",
+          "on_fail": {
+            "repairs": [
+              "crank_tighten",
+              "bb_replace"
+            ],
+            "stop_riding_if": "cranks_loose"
+          }
+        },
+        {
+          "id": "gear_mechs",
+          "mcheck_text": "Are the front & rear gear mechs free from any wear or damage?",
+          "fault_label": "Bent or damaged gear mech",
+          "tier": "gold",
+          "safety_critical": false,
+          "customer_question": "Has the bike been dropped on the gear side? Does the rear mech look bent?",
+          "self_test": "Stand behind the bike and look at the rear mech. Is it hanging straight down in line with the gears?",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo from directly behind the rear wheel showing the rear mech, plus a side photo."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "hanger_align",
+              "hanger_replace",
+              "rear_mech_replace",
+              "front_mech_replace"
+            ]
+          }
+        },
+        {
+          "id": "chain_wear",
+          "mcheck_text": "Is the chain less than 0.75% worn? (Over 0.75% replace chain, over 1.0% replace chain and cassette/freewheel)",
+          "fault_label": "Worn chain",
+          "tier": "gold",
+          "safety_critical": false,
+          "customer_question": "Roughly how many miles since the chain was last replaced? Does the chain skip when you pedal hard?",
+          "self_test": "If you have a chain checker, use it. Otherwise, in the biggest front ring, try to pull the chain away from the ring at the front. If you can see a big gap over several teeth, it's likely worn.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Photo of the chain and rear cogs from the side."
+          },
+          "remote_confidence": "tech_only",
+          "thresholds": {
+            "replace_chain": 0.75,
+            "replace_chain_and_cassette": 1
+          },
+          "on_fail": {
+            "repairs": [
+              "chain_replace",
+              "chain_cassette_replace"
+            ]
+          }
+        },
+        {
+          "id": "chainring_cassette",
+          "mcheck_text": "Is the front chain wheel and rear cassette free from any wear or damage?",
+          "fault_label": "Worn chainring or cassette",
+          "tier": "gold",
+          "safety_critical": false,
+          "customer_question": "Does the chain slip or jump under pressure, even in gears that shift correctly?",
+          "self_test": "Look at the teeth. Worn teeth look hooked or like shark fins.",
+          "photo_request": {
+            "needed": true,
+            "guidance": "Close-ups of the front chainring teeth and the rear cassette."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "cassette_replace",
+              "chainring_replace",
+              "chain_cassette_replace"
+            ]
+          }
+        },
+        {
+          "id": "drivetrain_clean",
+          "mcheck_text": "Is the drivetrain clean?",
+          "fault_label": "Dirty drivetrain",
+          "tier": "platinum",
+          "safety_critical": false,
+          "customer_question": null,
+          "self_test": null,
+          "photo_request": {
+            "needed": true,
+            "guidance": "Covered by the chain and cassette photos."
+          },
+          "remote_confidence": "photo",
+          "on_fail": {
+            "repairs": [
+              "drivetrain_clean"
+            ],
+            "diy_possible": true
+          }
+        }
+      ]
+    },
+    {
+      "id": "accessories",
+      "label": "Accessories",
+      "checks": [
+        {
+          "id": "lights",
+          "mcheck_text": "Does the bike have a working front light and a working rear light?",
+          "fault_label": "No working lights",
+          "tier": null,
+          "safety_critical": false,
+          "customer_question": "Do you have working front and rear lights?",
+          "self_test": null,
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "conversation",
+          "on_fail": {
+            "outcome": "product_suggestion",
+            "products": [
+              "lights_set"
+            ]
+          }
+        },
+        {
+          "id": "mudguards",
+          "mcheck_text": "Does the bike have mudguards fitted?",
+          "fault_label": "No mudguards",
+          "tier": null,
+          "safety_critical": false,
+          "customer_question": "Does the bike have mudguards?",
+          "self_test": null,
+          "photo_request": {
+            "needed": false
+          },
+          "remote_confidence": "conversation",
+          "on_fail": {
+            "outcome": "product_suggestion",
+            "products": [
+              "mudguards_set"
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "repairs": [
+    {
+      "id": "tyre_inflate",
+      "label": "Inflate tyres to correct pressure",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "inner_tube_replace",
+      "label": "Replace inner tube",
+      "parts": [
+        "inner_tube"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "tyre_replace",
+      "label": "Replace tyre",
+      "parts": [
+        "tyre"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "tyre_reseat",
+      "label": "Re-seat tyre on rim",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "wheel_true",
+      "label": "True wheel",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "spoke_replace",
+      "label": "Replace spoke and true wheel",
+      "parts": [
+        "spoke"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "wheel_replace",
+      "label": "Replace wheel",
+      "parts": [
+        "wheel"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "axle_secure",
+      "label": "Secure axle / quick release",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "hub_adjust",
+      "label": "Adjust hub bearings",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "hub_service",
+      "label": "Service hub bearings",
+      "parts": [
+        "bearings"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "brake_adjust",
+      "label": "Adjust brakes",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "brake_pads_replace",
+      "label": "Replace brake pads",
+      "parts": [
+        "brake_pads"
+      ],
+      "labour_minutes": null,
+      "price": null,
+      "per_position": true
+    },
+    {
+      "id": "brake_inner_cable_replace",
+      "label": "Replace inner brake cable",
+      "parts": [
+        "brake_inner_cable",
+        "cable_end"
+      ],
+      "labour_minutes": null,
+      "price": null,
+      "per_position": true
+    },
+    {
+      "id": "brake_outer_cable_replace",
+      "label": "Replace outer brake cable",
+      "parts": [
+        "brake_outer_cable",
+        "ferrules"
+      ],
+      "labour_minutes": null,
+      "price": null,
+      "per_position": true
+    },
+    {
+      "id": "brake_bleed",
+      "label": "Bleed hydraulic brake",
+      "parts": [
+        "brake_fluid"
+      ],
+      "labour_minutes": null,
+      "price": null,
+      "per_position": true
+    },
+    {
+      "id": "hydraulic_hose_replace",
+      "label": "Replace hydraulic hose",
+      "parts": [
+        "hydraulic_hose",
+        "olive_insert"
+      ],
+      "labour_minutes": null,
+      "price": null,
+      "per_position": true
+    },
+    {
+      "id": "cockpit_tighten",
+      "label": "Secure stem, bars, levers & shifters",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "grips_replace",
+      "label": "Replace grips",
+      "parts": [
+        "grips"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "bar_tape_replace",
+      "label": "Replace bar tape",
+      "parts": [
+        "bar_tape"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "headset_adjust",
+      "label": "Adjust headset",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "headset_replace",
+      "label": "Replace headset",
+      "parts": [
+        "headset"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "seatpost_tighten",
+      "label": "Secure seat post and saddle",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "seat_clamp_replace",
+      "label": "Replace seat clamp",
+      "parts": [
+        "seat_clamp"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "suspension_service",
+      "label": "Suspension service",
+      "parts": [
+        "seals",
+        "suspension_oil"
+      ],
+      "labour_minutes": null,
+      "price": null,
+      "note": "May be sent to a specialist"
+    },
+    {
+      "id": "gear_index",
+      "label": "Index gears",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "gear_inner_cable_replace",
+      "label": "Replace inner gear cable",
+      "parts": [
+        "gear_inner_cable",
+        "cable_end"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "gear_outer_cable_replace",
+      "label": "Replace outer gear cable",
+      "parts": [
+        "gear_outer_cable",
+        "ferrules"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "hanger_align",
+      "label": "Align derailleur hanger",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "hanger_replace",
+      "label": "Replace derailleur hanger",
+      "parts": [
+        "derailleur_hanger"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "rear_mech_replace",
+      "label": "Replace rear mech",
+      "parts": [
+        "rear_derailleur"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "front_mech_replace",
+      "label": "Replace front mech",
+      "parts": [
+        "front_derailleur"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "pedals_tighten",
+      "label": "Tighten pedals",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "pedals_replace",
+      "label": "Replace pedals",
+      "parts": [
+        "pedals"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "crank_tighten",
+      "label": "Tighten cranks",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "bb_replace",
+      "label": "Replace bottom bracket",
+      "parts": [
+        "bottom_bracket"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "chain_replace",
+      "label": "Replace chain",
+      "parts": [
+        "chain"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "cassette_replace",
+      "label": "Replace cassette/freewheel",
+      "parts": [
+        "cassette_or_freewheel"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "chain_cassette_replace",
+      "label": "Replace chain and cassette/freewheel",
+      "parts": [
+        "chain",
+        "cassette_or_freewheel"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "chainring_replace",
+      "label": "Replace chainring",
+      "parts": [
+        "chainring"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "drivetrain_clean",
+      "label": "Clean and lube drivetrain",
+      "parts": [
+        "degreaser",
+        "chain_lube"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "ebike_sensor_clean",
+      "label": "Clean eBike crank sensor",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "ebike_sensor_replace",
+      "label": "Replace eBike sensor",
+      "parts": [
+        "ebike_sensor"
+      ],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "ebike_display_diagnose",
+      "label": "Diagnose eBike display fault",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    },
+    {
+      "id": "ebike_motor_diagnose",
+      "label": "Diagnose eBike motor fault",
+      "parts": [],
+      "labour_minutes": null,
+      "price": null
+    }
+  ],
+  "symptoms": [
+    {
+      "id": "general_check",
+      "label": "General check / service",
+      "customer_phrases": [
+        "general check",
+        "service",
+        "just want it checked",
+        "haven't ridden in ages",
+        "full check"
+      ],
+      "flow": "full_mcheck",
+      "order": [
+        "ebike",
+        "safety_critical_first",
+        "wheels",
+        "handlebar",
+        "frame_saddle",
+        "drivetrain",
+        "accessories"
+      ]
+    },
+    {
+      "id": "wheel_wobble",
+      "label": "Wheel wobbles or rubs",
+      "customer_phrases": [
+        "wheel wobbles",
+        "wheel is buckled",
+        "wheel rubs",
+        "wonky wheel",
+        "wheel moves side to side"
+      ],
+      "candidates": {
+        "wheel_true": 0.5,
+        "tyre_not_seated": 0.15,
+        "hubs_tight": 0.15,
+        "spokes_rims": 0.2
+      },
+      "ask_order": [
+        "wheel_true",
+        "hubs_tight",
+        "spokes_rims"
+      ],
+      "extra_questions": [
+        {
+          "id": "tyre_not_seated",
+          "ask": "Look at the line moulded near the edge of the tyre. Is it an even distance from the rim all the way round?",
+          "splits": [
+            "tyre_not_seated"
+          ],
+          "options": [
+            {
+              "value": "even",
+              "label": "Yes, even all the way round",
+              "weakens": [
+                "tyre_not_seated"
+              ]
+            },
+            {
+              "value": "uneven",
+              "label": "No, it dips or bulges in places",
+              "supports": [
+                "tyre_not_seated"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "brakes_weak",
+      "label": "Brakes feel weak",
+      "customer_phrases": [
+        "brakes don't work",
+        "brakes weak",
+        "can't stop",
+        "lever touches handlebar",
+        "spongy brakes"
+      ],
+      "safety_critical": true,
+      "candidates": {
+        "brake_pads": 0.4,
+        "brakes_stop_wheel": 0.3,
+        "hydraulic_brake": 0.2,
+        "brake_inner_cable": 0.1
+      },
+      "ask_first": "brake_type",
+      "ask_order": [
+        "brakes_stop_wheel",
+        "brake_pads",
+        "hydraulic_brake",
+        "brake_inner_cable"
+      ]
+    },
+    {
+      "id": "brake_noise",
+      "label": "Brakes squeal or grind",
+      "customer_phrases": [
+        "brakes squeal",
+        "brakes squeak",
+        "grinding when braking",
+        "scraping noise"
+      ],
+      "candidates": {
+        "brake_pads": 0.6,
+        "wheel_true": 0.2,
+        "hydraulic_brake": 0.2
+      },
+      "ask_order": [
+        "brake_pads",
+        "wheel_true"
+      ]
+    },
+    {
+      "id": "gears_slipping",
+      "label": "Gears slip / chain skips",
+      "customer_phrases": [
+        "gears slip",
+        "chain skips",
+        "jumps gear",
+        "slips when I pedal hard"
+      ],
+      "candidates": {
+        "chain_wear": 0.35,
+        "chainring_cassette": 0.25,
+        "gears_operate": 0.25,
+        "gear_mechs": 0.15
+      },
+      "ask_order": [
+        "gears_operate",
+        "chain_wear",
+        "chainring_cassette",
+        "gear_mechs"
+      ]
+    },
+    {
+      "id": "gears_not_shifting",
+      "label": "Gears won't change",
+      "customer_phrases": [
+        "gears won't change",
+        "stuck in one gear",
+        "shifter doesn't work",
+        "gears are stiff"
+      ],
+      "candidates": {
+        "gears_operate": 0.3,
+        "gear_inner_cable": 0.3,
+        "gear_outer_cable": 0.2,
+        "gear_mechs": 0.2
+      },
+      "ask_order": [
+        "gear_inner_cable",
+        "gears_operate",
+        "gear_mechs",
+        "gear_outer_cable"
+      ]
+    },
+    {
+      "id": "chain_drops",
+      "label": "Chain comes off",
+      "customer_phrases": [
+        "chain comes off",
+        "chain falls off",
+        "chain dropped"
+      ],
+      "candidates": {
+        "gears_operate": 0.4,
+        "gear_mechs": 0.3,
+        "chain_wear": 0.2,
+        "chainring_cassette": 0.1
+      },
+      "ask_order": [
+        "gears_operate",
+        "gear_mechs",
+        "chain_wear"
+      ]
+    },
+    {
+      "id": "creak_knock_pedalling",
+      "label": "Creak or knock when pedalling",
+      "customer_phrases": [
+        "creaks when pedalling",
+        "clicking every pedal stroke",
+        "knocking when I pedal"
+      ],
+      "candidates": {
+        "bottom_bracket": 0.35,
+        "pedals": 0.3,
+        "seat_secure": 0.15,
+        "chain_wear": 0.1,
+        "frame_undamaged": 0.1
+      },
+      "ask_order": [
+        "bottom_bracket",
+        "pedals",
+        "seat_secure"
+      ],
+      "extra_questions": [
+        {
+          "id": "creak_seated",
+          "ask": "Does the noise stop when you stand up on the pedals?",
+          "splits": [
+            "seat_secure"
+          ],
+          "options": [
+            {
+              "value": "stops",
+              "label": "Yes, it stops when I stand",
+              "supports": [
+                "seat_secure"
+              ]
+            },
+            {
+              "value": "continues",
+              "label": "No, it carries on",
+              "weakens": [
+                "seat_secure"
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "front_knock",
+      "label": "Knock or clunk at the front",
+      "customer_phrases": [
+        "knock when braking",
+        "clunk at the front",
+        "steering feels loose",
+        "handlebars knock"
+      ],
+      "safety_critical": true,
+      "candidates": {
+        "headset_tight": 0.5,
+        "hubs_tight": 0.2,
+        "cockpit_secure": 0.2,
+        "suspension": 0.1
+      },
+      "ask_order": [
+        "headset_tight",
+        "cockpit_secure",
+        "hubs_tight"
+      ]
+    },
+    {
+      "id": "flat_tyre",
+      "label": "Flat tyre / puncture",
+      "customer_phrases": [
+        "flat tyre",
+        "puncture",
+        "tyre keeps going down",
+        "tyre goes soft"
+      ],
+      "candidates": {
+        "tyre_pressure": 0.4,
+        "tyre_condition": 0.4,
+        "spokes_rims": 0.2
+      },
+      "ask_order": [
+        "tyre_pressure",
+        "tyre_condition",
+        "spokes_rims"
+      ],
+      "extra_questions": [
+        {
+          "id": "slow_puncture",
+          "ask": "Does it go flat overnight, or suddenly while riding?",
+          "splits": [
+            "tyre_condition",
+            "tyre_pressure"
+          ],
+          "options": [
+            {
+              "value": "slowly",
+              "label": "Slowly, e.g. overnight",
+              "supports": [
+                "tyre_pressure"
+              ]
+            },
+            {
+              "value": "suddenly",
+              "label": "Suddenly while riding",
+              "supports": [
+                "tyre_condition"
+              ]
+            }
+          ]
+        }
+      ],
+      "service_upsell": "slime"
+    },
+    {
+      "id": "saddle_problem",
+      "label": "Saddle slips or twists",
+      "customer_phrases": [
+        "saddle slips",
+        "seat keeps dropping",
+        "saddle twists"
+      ],
+      "candidates": {
+        "seat_secure": 1
+      },
+      "ask_order": [
+        "seat_secure"
+      ]
+    },
+    {
+      "id": "suspension_problem",
+      "label": "Suspension problem",
+      "customer_phrases": [
+        "suspension stiff",
+        "fork leaking",
+        "suspension bottoms out",
+        "fork knocks"
+      ],
+      "candidates": {
+        "suspension": 0.7,
+        "headset_tight": 0.3
+      },
+      "ask_order": [
+        "suspension",
+        "headset_tight"
+      ]
+    },
+    {
+      "id": "ebike_problem",
+      "label": "eBike motor, battery or display",
+      "customer_phrases": [
+        "motor not working",
+        "no assist",
+        "battery won't charge",
+        "error code",
+        "display blank"
+      ],
+      "candidates": {
+        "ebike_battery_charged": 0.2,
+        "ebike_battery_undamaged": 0.2,
+        "ebike_display": 0.2,
+        "ebike_motor_engages": 0.2,
+        "ebike_crank_sensor": 0.2
+      },
+      "run_section_first": "ebike",
+      "ask_order": [
+        "ebike_battery_undamaged",
+        "ebike_battery_charged",
+        "ebike_display",
+        "ebike_motor_engages",
+        "ebike_crank_sensor"
+      ]
+    }
+  ],
+  "intake_questions": [
+    {
+      "id": "bike_make_model",
+      "ask": "What make and model is your bike? A photo of the whole bike from the side helps.",
+      "photo": "whole bike, drive side"
+    },
+    {
+      "id": "is_ebike",
+      "ask": "Is it an electric bike?",
+      "options": [
+        "yes",
+        "no"
+      ]
+    },
+    {
+      "id": "brake_type",
+      "ask": "What kind of brakes does it have?",
+      "options": [
+        "rim",
+        "mechanical_disc",
+        "hydraulic_disc",
+        "not_sure"
+      ],
+      "photo_example_per_option": true
+    },
+    {
+      "id": "has_suspension",
+      "ask": "Does it have suspension?",
+      "options": [
+        "none",
+        "front",
+        "front_and_rear"
+      ]
+    },
+    {
+      "id": "reason",
+      "ask": "Is there a specific problem, or would you like a general check?",
+      "routes_to": "symptoms"
+    }
+  ],
+  "non_check_causes": {
+    "tyre_not_seated": {
+      "label": "Tyre not seated evenly on the rim",
+      "repairs": [
+        "tyre_reseat"
+      ],
+      "diy_possible": true,
+      "remote_confidence": "self_test"
+    }
+  }
+}

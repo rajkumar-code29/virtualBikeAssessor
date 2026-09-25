@@ -1,0 +1,39 @@
+Virtual Bike Assessor
+Copyright (c) 2026 Raj Kumar G K. All rights reserved.
+
+PROPRIETARY LICENSE
+
+This software, including its source code, knowledge base, documentation,
+designs, icons and all associated files (together, the "Software"), is the
+proprietary property of Raj Kumar G K (the "Author").
+
+1. No licence is granted. Except as expressly permitted in writing by the
+   Author, no person or organisation may use, copy, modify, merge, publish,
+   distribute, sublicense, sell, rent, lease, reverse engineer or create
+   derivative works of the Software, in whole or in part.
+
+2. Viewing. Where the Author has chosen to share the Software (for example
+   for evaluation, a job application or a demonstration), the recipient may
+   view and run it only for that purpose, and must not keep, share or reuse
+   any part of it afterwards.
+
+3. Third-party components. The Software uses third-party open-source
+   packages (for example Flutter and the packages listed in
+   app/pubspec.yaml). Those packages remain under their own licences and are
+   not covered by this licence.
+
+4. Source material. Parts of the diagnostic knowledge base are derived from
+   a bicycle workshop inspection checklist. Rights in that original
+   checklist belong to its respective owner; the Author claims copyright
+   only in the original structure, logic, wording and code created for this
+   Software.
+
+5. No warranty. The Software is provided "as is", without warranty of any
+   kind, express or implied, including but not limited to the warranties of
+   merchantability, fitness for a particular purpose and non-infringement.
+   It gives remote guidance only and is not a substitute for an inspection
+   by a qualified bicycle technician. In no event shall the Author be liable
+   for any claim, damages or other liability arising from, out of or in
+   connection with the Software or its use.
+
+For permission requests, contact the Author: raj.gk29@gmail.com

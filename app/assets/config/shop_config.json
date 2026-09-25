@@ -1,0 +1,177 @@
+{
+  "_comment": "EXAMPLE values for development only. Each shop replaces these with its own prices, labour times and booking details.",
+  "name": "Example Bike Workshop",
+  "currency": "\u00a3",
+  "example_prices": true,
+  "booking_email": "bookings@example.com",
+  "booking_url": null,
+  "labour_rate_per_hour": 40,
+  "service_tiers": {
+    "bronze": 25,
+    "silver": 40,
+    "gold": 60,
+    "platinum": 90
+  },
+  "repairs": {
+    "tyre_inflate": {
+      "labour_minutes": 5
+    },
+    "inner_tube_replace": {
+      "labour_minutes": 15,
+      "parts_estimate": 8
+    },
+    "tyre_replace": {
+      "labour_minutes": 20,
+      "parts_estimate": 25
+    },
+    "tyre_reseat": {
+      "labour_minutes": 10
+    },
+    "wheel_true": {
+      "labour_minutes": 30
+    },
+    "spoke_replace": {
+      "labour_minutes": 45,
+      "parts_estimate": 3
+    },
+    "wheel_replace": {
+      "labour_minutes": 20,
+      "parts_estimate": 60
+    },
+    "axle_secure": {
+      "labour_minutes": 5
+    },
+    "hub_adjust": {
+      "labour_minutes": 20
+    },
+    "hub_service": {
+      "labour_minutes": 45,
+      "parts_estimate": 10
+    },
+    "brake_adjust": {
+      "labour_minutes": 15
+    },
+    "brake_pads_replace": {
+      "labour_minutes": 15,
+      "parts_estimate": 15
+    },
+    "brake_inner_cable_replace": {
+      "labour_minutes": 20,
+      "parts_estimate": 5
+    },
+    "brake_outer_cable_replace": {
+      "labour_minutes": 30,
+      "parts_estimate": 10
+    },
+    "brake_bleed": {
+      "labour_minutes": 30,
+      "parts_estimate": 8
+    },
+    "hydraulic_hose_replace": {
+      "labour_minutes": 45,
+      "parts_estimate": 20
+    },
+    "cockpit_tighten": {
+      "labour_minutes": 10
+    },
+    "grips_replace": {
+      "labour_minutes": 10,
+      "parts_estimate": 12
+    },
+    "bar_tape_replace": {
+      "labour_minutes": 20,
+      "parts_estimate": 15
+    },
+    "headset_adjust": {
+      "labour_minutes": 15
+    },
+    "headset_replace": {
+      "labour_minutes": 45,
+      "parts_estimate": 30
+    },
+    "seatpost_tighten": {
+      "labour_minutes": 5
+    },
+    "seat_clamp_replace": {
+      "labour_minutes": 10,
+      "parts_estimate": 8
+    },
+    "suspension_service": {
+      "labour_minutes": 90,
+      "parts_estimate": 25
+    },
+    "gear_index": {
+      "labour_minutes": 15
+    },
+    "gear_inner_cable_replace": {
+      "labour_minutes": 20,
+      "parts_estimate": 5
+    },
+    "gear_outer_cable_replace": {
+      "labour_minutes": 30,
+      "parts_estimate": 10
+    },
+    "hanger_align": {
+      "labour_minutes": 15
+    },
+    "hanger_replace": {
+      "labour_minutes": 20,
+      "parts_estimate": 20
+    },
+    "rear_mech_replace": {
+      "labour_minutes": 30,
+      "parts_estimate": 35
+    },
+    "front_mech_replace": {
+      "labour_minutes": 30,
+      "parts_estimate": 25
+    },
+    "pedals_tighten": {
+      "labour_minutes": 5
+    },
+    "pedals_replace": {
+      "labour_minutes": 10,
+      "parts_estimate": 20
+    },
+    "crank_tighten": {
+      "labour_minutes": 10
+    },
+    "bb_replace": {
+      "labour_minutes": 45,
+      "parts_estimate": 25
+    },
+    "chain_replace": {
+      "labour_minutes": 15,
+      "parts_estimate": 20
+    },
+    "cassette_replace": {
+      "labour_minutes": 20,
+      "parts_estimate": 30
+    },
+    "chain_cassette_replace": {
+      "labour_minutes": 30,
+      "parts_estimate": 50
+    },
+    "chainring_replace": {
+      "labour_minutes": 30,
+      "parts_estimate": 35
+    },
+    "drivetrain_clean": {
+      "labour_minutes": 30,
+      "parts_estimate": 5
+    },
+    "ebike_sensor_clean": {
+      "labour_minutes": 15
+    },
+    "ebike_sensor_replace": {
+      "labour_minutes": 45,
+      "parts_estimate": 60
+    },
+    "ebike_display_diagnose": {
+      "labour_minutes": 30
+    },
+    "ebike_motor_diagnose": {
+      "labour_minutes": 45
+    }
+  }
+}

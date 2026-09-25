@@ -1,0 +1,11 @@
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+
+# Local tool settings
+.claude/
+
+# Secrets (never commit API keys)
+secrets.json
+.env
